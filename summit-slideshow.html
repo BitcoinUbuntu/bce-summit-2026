@@ -211,17 +211,6 @@
             font-size: 1.1rem;
         }
 
-        .slide-number {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            color: var(--text-secondary);
-            font-family: ui-monospace, monospace;
-            font-size: 0.9rem;
-            opacity: 0.5;
-            z-index: 1000;
-        }
-
         .logo {
             position: fixed;
             top: 40px;
@@ -1178,8 +1167,6 @@
         </div>
     </div>
 
-    <div class="slide-number" id="slideNumber">1</div>
-
     <div class="navigation">
         <button class="nav-btn" id="prevBtn">←</button>
         <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">36</span></span>
@@ -1198,7 +1185,6 @@
             currentSlide = (n + totalSlides) % totalSlides;
             slides[currentSlide].classList.add('active');
             document.getElementById('currentSlide').textContent = currentSlide + 1;
-            document.getElementById('slideNumber').textContent = currentSlide + 1;
         }
 
         document.getElementById('prevBtn').addEventListener('click', () => {
