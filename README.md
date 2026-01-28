@@ -2,6 +2,12 @@
 
 Presentation slides for the Bitcoin Circular Economies Summit, January 29, 2026.
 
+## 🎯 [**View the Live Presentation →**](https://bitcoinubuntu.github.io/bce-summit-2026/summit-slideshow.html)
+
+Use arrow keys (← →) to navigate through 35 slides.
+
+---
+
 ## About
 
 This presentation tells the story of building [PoWBoT](https://github.com/BitcoinUbuntu/telegram-bot), an automated proof-of-work verification and payment system for the Circular Bitcoin Africa Fund (CBAF), using Claude AI as a collaborative development partner.
