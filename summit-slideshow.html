@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building PoWBoT - Summit Presentation</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-card: #21262d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --accent-orange: #f7931a;
+            --accent-green: #3fb950;
+            --accent-blue: #58a6ff;
+            --accent-purple: #a371f7;
+            --accent-red: #f85149;
+            --border: #30363d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1400px;
+            height: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        .slide h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .slide h2 {
+            font-size: 3.5rem;
+            color: var(--accent-orange);
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        .slide h3 {
+            font-size: 2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .slide p {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .slide ul {
+            list-style: none;
+            font-size: 1.5rem;
+        }
+
+        .slide li {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .slide li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent-orange);
+        }
+
+        .no-arrows li::before {
+            content: none;
+        }
+
+        .no-arrows li {
+            padding-left: 0;
+        }
+
+        .quote {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: var(--accent-orange);
+            font-style: italic;
+            margin: 2rem 0;
+        }
+
+        .date {
+            font-family: ui-monospace, monospace;
+            color: var(--accent-blue);
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            color: var(--accent-orange);
+            font-weight: 600;
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+            width: 100%;
+            margin-top: 3rem;
+        }
+
+        .col {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .col h3 {
+            color: var(--accent-orange);
+            margin-bottom: 1.5rem;
+        }
+
+        .col p {
+            font-size: 1.2rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--accent-orange);
+            font-family: ui-monospace, monospace;
+        }
+
+        .stat-label {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.2s;
+            min-width: 50px;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent-orange);
+            border-color: var(--accent-orange);
+        }
+
+        .slide-counter {
+            color: var(--text-secondary);
+            font-family: ui-monospace, monospace;
+            font-size: 1.1rem;
+        }
+
+        .slide-number {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            color: var(--text-secondary);
+            font-family: ui-monospace, monospace;
+            font-size: 0.9rem;
+            opacity: 0.5;
+            z-index: 1000;
+        }
+
+        .logo {
+            position: fixed;
+            top: 40px;
+            left: 40px;
+            z-index: 1000;
+        }
+
+        .logo img {
+            height: 75px;
+            width: auto;
+        }
+
+        .slide-1 .logo,
+        .slide-31 .logo {
+            display: none;
+        }
+
+        .slide-1 h2 {
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        .code-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            font-family: ui-monospace, monospace;
+            font-size: 1.2rem;
+            text-align: left;
+            margin: 2rem 0;
+            color: var(--accent-green);
+        }
+
+        .bullet-list {
+            text-align: left;
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+
+        .big-message {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.3;
+            max-width: 1200px;
+        }
+
+        .slide-29-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            max-width: 1400px;
+        }
+
+        .slide-29-content .mascot {
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+
+        .slide-29-content .mascot img {
+            height: 340px;
+        }
+
+        .slide-29-content .big-message {
+            text-align: left;
+        }
+
+        .slide-29-content .big-message .highlight {
+            font-weight: 700;
+        }
+
+        .contact {
+            margin-top: 3rem;
+            font-size: 1.3rem;
+        }
+
+        .contact a {
+            color: var(--accent-orange);
+            text-decoration: none;
+        }
+
+        .mascot {
+            margin-bottom: 2rem;
+        }
+
+        .mascot img {
+            height: 250px;
+            width: auto;
+        }
+
+        .checkmark {
+            color: var(--accent-green);
+        }
+
+        .crossed {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        .cost {
+            background: var(--bg-card);
+            border-left: 4px solid var(--accent-green);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: ui-monospace, monospace;
+        }
+
+        .problem-solution {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 2rem;
+            align-items: center;
+            margin: 1rem 0;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .problem-solution .arrow {
+            font-size: 3rem;
+            color: var(--accent-orange);
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <img src="bitcoin-ubuntu-logo.png" alt="Bitcoin Ubuntu">
+    </div>
+
+    <div class="slide-container">
+        <!-- SLIDE 1: Title -->
+        <div class="slide slide-1 active">
+            <div class="mascot">
+                <img src="powbot-mascot.png" alt="PoWBoT Mascot" style="height: 220px;">
+            </div>
+            <h1>Building PoWBoT</h1>
+            <h2>How AI Unlocks Grassroots Innovation</h2>
+            <p style="font-size: 1.5rem; color: var(--text-secondary); font-style: italic; margin-top: 0.5rem;">(or how I accidentally came to be a full-stack developer)</p>
+            <p style="margin-top: 3rem; font-size: 1.3rem;">Glenn Jooste <span style="color: var(--accent-orange);">|</span> Bitcoin Ubuntu</p>
+            <p style="color: var(--text-secondary); font-size: 1.1rem;">Bitcoin Circular Economies Summit <span style="color: var(--accent-orange);">|</span> January 29, 2026</p>
+        </div>
+
+        <!-- SLIDE 2: The Challenge -->
+        <div class="slide">
+            <h2>The Challenge</h2>
+            <div class="three-col" style="grid-template-columns: 1fr 1fr; margin-top: 2rem;">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">The Existing System</h3>
+                    <p style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Late 2025</p>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Manual verification and data capture</li>
+                        <li style="margin-bottom: 0.8rem;">Manual sourcing of payment details</li>
+                        <li style="margin-bottom: 0.8rem;">Manual tracking and auditing</li>
+                        <li style="margin-bottom: 0.8rem;">Manual project registration</li>
+                        <li style="margin-bottom: 0.8rem;">3-month cycles</li>
+                    </ul>
+                    <p style="margin-top: 2rem; color: var(--accent-orange); font-size: 1.5rem; font-style: italic; font-weight: bold;">It worked... but couldn't scale.</p>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">The Exploration</h3>
+                    <p style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Just trying to make life easier</p>
+                    <p style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem; text-align: left;">Looking for ways to consolidate existing data and make admin tasks more manageable.</p>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Working with Grok</li>
+                        <li style="margin-bottom: 0.8rem;">Learning Python basics</li>
+                        <li style="margin-bottom: 0.8rem;">Google Sheets basics</li>
+                    </ul>
+                    <p style="margin-top: 2rem; color: var(--accent-orange); font-size: 1.5rem; font-style: italic; font-weight: bold;">Then the pivotal idea...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: First Message -->
+        <div class="slide">
+            <div class="quote">"Help me write a basic Telegram bot"</div>
+            <h3 class="date">November 30, 2025</h3>
+            <p style="font-size: 1.8rem; margin-top: 2rem; color: var(--text-primary);">That changed everything.</p>
+        </div>
+
+        <!-- SLIDE 4: Problems -->
+        <div class="slide">
+            <h2>The Problems We Faced</h2>
+            <div class="three-col">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Verification</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Manual checking</li>
+                        <li style="margin-bottom: 0.8rem;">Time-consuming</li>
+                        <li style="margin-bottom: 0.8rem;">Human error</li>
+                        <li style="margin-bottom: 0.8rem;">Bottlenecks</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Payments</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Address limitations</li>
+                        <li style="margin-bottom: 0.8rem;">Wrong information</li>
+                        <li style="margin-bottom: 0.8rem;">Coordination delays</li>
+                        <li style="margin-bottom: 0.8rem;">Frustrated users</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Rewards</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">3-month wait</li>
+                        <li style="margin-bottom: 0.8rem;">Unknown amounts</li>
+                        <li style="margin-bottom: 0.8rem;">Demotivating</li>
+                        <li style="margin-bottom: 0.8rem;">Can't scale</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: Vision -->
+        <div class="slide">
+            <h2>The Idea</h2>
+            <div class="code-block" style="font-size: 1.5rem; text-align: center; color: var(--text-primary);">
+                <strong style="color: var(--accent-orange);">MERCHANT</strong> accepts Bitcoin payment<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                <strong style="color: var(--accent-orange);">PROJECT</strong> creates video content<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                <strong style="color: var(--accent-orange);">REVIEWER</strong> verifies quality<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                <strong style="color: var(--accent-orange);">PAYMENTS</strong> sent automatically<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                <strong style="color: var(--accent-orange);">DATA</strong> tracked accurately & transparently
+            </div>
+            <h3 style="margin-top: 3rem; color: var(--accent-orange); font-style: italic;">Fast. Accurate. Fair.</h3>
+        </div>
+
+        <!-- SLIDE 6: Partnership -->
+        <div class="slide">
+            <h2>The Partnership</h2>
+            <div class="three-col" style="grid-template-columns: 1fr auto 1fr; align-items: center;">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Me</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Domain knowledge</li>
+                        <li style="margin-bottom: 0.8rem;">Problem understanding</li>
+                        <li style="margin-bottom: 0.8rem;">Creative thinking</li>
+                        <li style="margin-bottom: 0.8rem;">User perspective</li>
+                    </ul>
+                </div>
+                <div style="font-size: 4rem; color: var(--accent-orange);">+</div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Claude</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Technical expertise</li>
+                        <li style="margin-bottom: 0.8rem;">Code generation</li>
+                        <li style="margin-bottom: 0.8rem;">Debugging</li>
+                        <li style="margin-bottom: 0.8rem;">Best practices</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: Day 1 -->
+        <div class="slide">
+            <h2>Day 1 – The First Attempt</h2>
+            <p class="date">November 30, 2025</p>
+            <div class="three-col" style="grid-template-columns: 1fr 1fr; margin-top: 2rem;">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">The Build</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Python script</li>
+                        <li style="margin-bottom: 0.8rem;">Checked X post format</li>
+                        <li style="margin-bottom: 0.8rem;">Used xAI API (Grok)</li>
+                        <li style="margin-bottom: 0.8rem;">Basic validation</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">The Outcome</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;"><strong style="color: var(--accent-orange);">Cost:</strong> Testing budget on API calls</li>
+                        <li style="margin-bottom: 0.8rem;"><strong style="color: var(--accent-orange);">Result:</strong> Too many false positives</li>
+                    </ul>
+                    <p style="margin-top: 2rem; color: var(--accent-orange); font-size: 1.5rem; font-style: italic; font-weight: bold;">But it proved the concept.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: Day 2 -->
+        <div class="slide">
+            <h2>Day 2 – The Breakthrough</h2>
+            <p class="date">December 1, 2025</p>
+            <div class="three-col" style="grid-template-columns: 1fr 1fr; margin-top: 2rem;">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">The Build</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Switched approach completely</li>
+                        <li style="margin-bottom: 0.8rem;">Removed AI validation</li>
+                        <li style="margin-bottom: 0.8rem;">Direct content retrieval</li>
+                        <li style="margin-bottom: 0.8rem;">Pattern matching and format checks</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">The Outcome</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;"><strong style="color: var(--accent-orange);">Cost:</strong> $0</li>
+                        <li style="margin-bottom: 0.8rem;"><strong style="color: var(--accent-orange);">Result:</strong> Dramatically improved speed and accuracy</li>
+                    </ul>
+                    <p style="margin-top: 2rem; color: var(--accent-orange); font-size: 1.5rem; font-style: italic; font-weight: bold;">"The best version costs nothing and runs much faster"</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: Evolution -->
+        <div class="slide">
+            <h2>60 Days of Evolution</h2>
+            <p class="date">November 30 → January 27</p>
+            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 3rem; margin-top: 2rem; align-items: start;">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Core Systems</h3>
+                    <ul class="no-arrows" style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> Payment integration</li>
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> Reviewer workflow</li>
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> Nostr integration</li>
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> Public dashboard</li>
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> Stats generation</li>
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> SQLite backup</li>
+                    </ul>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center; gap: 2rem;">
+                    <div class="stat">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label" style="color: var(--text-primary);">Major Features</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">8,000+</div>
+                        <div class="stat-label" style="color: var(--text-primary);">Lines of Code</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label" style="color: var(--text-primary);">Prior Experience</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Enhancements</h3>
+                    <ul class="no-arrows" style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> Telegram dashboard</li>
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> Improved messaging</li>
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> Difficulty adjustment</li>
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> Public tracker</li>
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> Error logging</li>
+                        <li style="margin-bottom: 0.8rem;"><span class="checkmark">✓</span> Demo mode</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: System Today -->
+        <div class="slide">
+            <h2>The System Today</h2>
+            <div class="three-col">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Bot</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Python</li>
+                        <li style="margin-bottom: 0.8rem;">python-telegram-bot</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Storage</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Google Sheets</li>
+                        <li style="margin-bottom: 0.8rem;">SQLite backup</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Stats</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Public dashboard</li>
+                        <li style="margin-bottom: 0.8rem;">Real-time updates</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="three-col" style="margin-top: 2rem;">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Social</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Telegram</li>
+                        <li style="margin-bottom: 0.8rem;">Nostr SDK</li>
+                        <li style="margin-bottom: 0.8rem;">Auto-reposts and likes</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Payments</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Blink API</li>
+                        <li style="margin-bottom: 0.8rem;">Lightning Network</li>
+                        <li style="margin-bottom: 0.8rem;">Receipts for users</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Hosting</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Local (for now)</li>
+                        <li style="margin-bottom: 0.8rem;">GitHub Pages</li>
+                        <li style="margin-bottom: 0.8rem;">24/7 uptime</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: What is PoWBoT -->
+        <div class="slide">
+            <div class="slide-29-content">
+                <div class="mascot">
+                    <img src="powbot-mascot.png" alt="PoWBoT Mascot">
+                </div>
+                <div class="big-message">
+                    <span class="highlight">What is PoWBoT?</span><br>
+                    An automated proof-of-work verification and payments system.
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: Process - Submit -->
+        <div class="slide">
+            <h2>How It Works: Content & Submission</h2>
+            <div class="code-block" style="font-size: 1.8rem; text-align: center; max-width: 1000px; color: var(--text-primary);">
+                📹 Film merchant transaction<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                📱 Post to X + Nostr<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                💬 Submit URL to Telegram<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                🤖 PoWBoT validates & logs to tracker<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                👁️ Queued for human review
+            </div>
+            <h3 style="margin-top: 3rem; color: var(--accent-orange); font-style: italic;">Real people. Real transactions. Real adoption.</h3>
+        </div>
+
+        <!-- SLIDE 12: Under The Hood -->
+        <div class="slide">
+            <h2>Under The Hood: Validation Process</h2>
+            <div class="three-col" style="grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 2rem;">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Data Extraction</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Fetch from X/Nostr APIs</li>
+                        <li style="margin-bottom: 0.8rem;">Expand shortened URLs</li>
+                        <li style="margin-bottom: 0.8rem;">Extract Lightning address</li>
+                        <li style="margin-bottom: 0.8rem;">Extract BTC Map link</li>
+                        <li style="margin-bottom: 0.8rem;">Extract project identifier</li>
+                        <li style="margin-bottom: 0.8rem;">Extract country/location</li>
+                        <li style="margin-bottom: 0.8rem;">Identify Lightning provider</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Validation & Enrichment</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Check for duplicates</li>
+                        <li style="margin-bottom: 0.8rem;">Validate required elements</li>
+                        <li style="margin-bottom: 0.8rem;">Query BTC Map API</li>
+                        <li style="margin-bottom: 0.8rem;">Fetch merchant name</li>
+                        <li style="margin-bottom: 0.8rem;">Send test payment to merchant</li>
+                        <li style="margin-bottom: 0.8rem;">Like and repost on Nostr</li>
+                        <li style="margin-bottom: 0.8rem;">Log structured data</li>
+                    </ul>
+                </div>
+            </div>
+            <h3 style="margin-top: 3rem; color: var(--accent-orange); font-style: italic;">All automated, near instant and before any human review.</h3>
+        </div>
+
+        <!-- SLIDE 13: Process - Review -->
+        <div class="slide">
+            <h2>How It Works: Review & Reward</h2>
+            <div class="code-block" style="font-size: 1.8rem; text-align: center; max-width: 1000px; color: var(--text-primary);">
+                📺 Reviewer watches video<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                👍 Approves or 👎 Rejects<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                ⚡ Instant Lightning payments<br>
+                <br>
+                <strong style="color: var(--accent-orange);">Approved:</strong> Reviewer + Project + Merchant<br>
+                <strong style="color: var(--accent-orange);">Rejected:</strong> Reviewer still paid
+            </div>
+            <h3 style="margin-top: 3rem; color: var(--accent-orange); font-style: italic;">Human judgment. Everyone's time is valued.</h3>
+        </div>
+
+        <!-- SLIDE 14: Process - Record -->
+        <div class="slide">
+            <h2>How It Works: Record & Display</h2>
+            <div class="code-block" style="font-size: 1.8rem; text-align: center; max-width: 1000px; color: var(--text-primary);">
+                💾 Every payment logged<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                🧾 Receipt sent to project and reviewer<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                📊 Stats generated<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                🌐 Public dashboard updates<br>
+                <span style="color: var(--accent-orange);">↓</span><br>
+                👀 World watches adoption happen
+            </div>
+            <h3 style="margin-top: 3rem; color: var(--accent-orange); font-style: italic;">Accountable. Visible. Verifiable.</h3>
+        </div>
+
+        <!-- SLIDE 15: Sheets Screenshot -->
+        <div class="slide">
+            <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%;">
+                <img src="sheets-screenshot.png" alt="PoWBoT Sheets and Telegram" style="max-width: 80%; max-height: 72vh; width: auto; height: auto; border-radius: 8px; box-shadow: 0 4px 20px rgba(255, 120, 0, 0.3);">
+            </div>
+        </div>
+
+        <!-- SLIDE 16: Conversations -->
+        <div class="slide">
+            <h2>Real Conversations</h2>
+            <div class="three-col" style="grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                <div class="code-block" style="text-align: left; font-size: 1.1rem; color: var(--text-primary); font-family: 'Courier New', Courier, monospace; font-weight: bold;">
+                    <strong style="color: var(--accent-orange);">GLENN:</strong> "Blink payments sometimes fail"<br><br>
+                    <strong style="color: var(--accent-blue);">CLAUDE:</strong> [Adds retry logic with exponential backoff]<br><br>
+                    <strong style="color: var(--accent-orange);">GLENN:</strong> "Duplicates getting through"<br><br>
+                    <strong style="color: var(--accent-blue);">CLAUDE:</strong> [Creates early duplicate detection]
+                </div>
+                <div class="code-block" style="text-align: left; font-size: 1.1rem; color: var(--text-primary); font-family: 'Courier New', Courier, monospace; font-weight: bold;">
+                    <strong style="color: var(--accent-orange);">GLENN:</strong> "What if Sheets goes down?"<br><br>
+                    <strong style="color: var(--accent-blue);">CLAUDE:</strong> [Builds SQLite backup system]<br><br>
+                    <strong style="color: var(--accent-orange);">GLENN:</strong> "Need low balance warning"<br><br>
+                    <strong style="color: var(--accent-blue);">CLAUDE:</strong> [Adds balance monitoring and burnrate]
+                </div>
+            </div>
+            <h3 style="margin-top: 3rem; color: var(--accent-orange); font-style: italic;">This is how development actually happens.</h3>
+        </div>
+
+        <!-- SLIDE 16: Results -->
+        <div class="slide">
+            <h2>The Results</h2>
+            <p class="date">January 2026</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">7</div>
+                    <div class="stat-label" style="color: var(--text-primary);">Countries</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">23</div>
+                    <div class="stat-label" style="color: var(--text-primary);">Projects</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">120</div>
+                    <div class="stat-label" style="color: var(--text-primary);">Merchants</div>
+                </div>
+            </div>
+            <div class="stats" style="margin-top: 2rem;">
+                <div class="stat">
+                    <div class="stat-value">📈</div>
+                    <div class="stat-label" style="color: var(--text-primary);">Increased Participation</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">24/7</div>
+                    <div class="stat-label" style="color: var(--text-primary);">Uptime</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">📈</div>
+                    <div class="stat-label" style="color: var(--text-primary);">Increased Accuracy</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 17: Cost -->
+        <div class="slide">
+            <h2>Development Cost</h2>
+            <div class="three-col" style="grid-template-columns: 1fr auto 1fr; align-items: center;">
+                <div class="col" style="border-left: 4px solid var(--accent-green);">
+                    <h3 style="color: var(--accent-green);">Actual</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Initial testing</li>
+                        <li style="margin-bottom: 0.8rem;">From $20/month for Claude</li>
+                        <li style="margin-bottom: 0.8rem;">$0 developer</li>
+                    </ul>
+                    <div style="font-size: 2rem; margin-top: 2rem; color: var(--accent-green); font-weight: 600; font-style: italic;">Accessible to anyone</div>
+                </div>
+                <div style="font-size: 4rem; color: var(--accent-red);">VS</div>
+                <div class="col" style="border-left: 4px solid var(--accent-red);">
+                    <h3 style="color: var(--accent-red);">Traditional</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">$5k–15k developer</li>
+                        <li style="margin-bottom: 0.8rem;">2–3 months timeline</li>
+                        <li style="margin-bottom: 0.8rem;">$$$ maintenance</li>
+                    </ul>
+                    <div class="stat-value" style="font-size: 3rem; margin-top: 2rem; color: var(--accent-red);">$$$$$</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 18: Learning -->
+        <div class="slide">
+            <h2>How I Learned</h2>
+            <div class="three-col" style="grid-template-columns: 1fr 1fr; margin-top: 2rem;">
+                <div class="col">
+                    <h3 style="color: var(--text-secondary);">Traditional Path</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li class="crossed" style="margin-bottom: 0.8rem;">Traditional coding courses</li>
+                        <li class="crossed" style="margin-bottom: 0.8rem;">Computer science degree</li>
+                        <li class="crossed" style="margin-bottom: 0.8rem;">Studying textbooks</li>
+                        <li class="crossed" style="margin-bottom: 0.8rem;">Programming bootcamp</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">My Approach</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Learning by doing</li>
+                        <li style="margin-bottom: 0.8rem;">Immediate feedback</li>
+                        <li style="margin-bottom: 0.8rem;">Solving real problems</li>
+                        <li style="margin-bottom: 0.8rem;">Contextual understanding</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 19: Problems Solved -->
+        <div class="slide">
+            <h2>Problems We Solved Together</h2>
+            <div style="max-width: 1000px; margin-top: 2rem;">
+                <div class="problem-solution">
+                    <div class="col" style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--accent-red); font-size: 1.3rem;">
+                        <strong style="color: var(--accent-red);">Problem:</strong> No ledger failsafe
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="col" style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--accent-green); font-size: 1.3rem;">
+                        <strong style="color: var(--accent-green);">Solution:</strong> SQLite backup system
+                    </div>
+                </div>
+                <div class="problem-solution">
+                    <div class="col" style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--accent-red); font-size: 1.3rem;">
+                        <strong style="color: var(--accent-red);">Problem:</strong> Manual stat generation
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="col" style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--accent-green); font-size: 1.3rem;">
+                        <strong style="color: var(--accent-green);">Solution:</strong> Automated export
+                    </div>
+                </div>
+                <div class="problem-solution">
+                    <div class="col" style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--accent-red); font-size: 1.3rem;">
+                        <strong style="color: var(--accent-red);">Problem:</strong> Shortened URL validation
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="col" style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--accent-green); font-size: 1.3rem;">
+                        <strong style="color: var(--accent-green);">Solution:</strong> URL expansion with retries
+                    </div>
+                </div>
+                <div class="problem-solution">
+                    <div class="col" style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--accent-red); font-size: 1.3rem;">
+                        <strong style="color: var(--accent-red);">Problem:</strong> Low balance risk
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="col" style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--accent-green); font-size: 1.3rem;">
+                        <strong style="color: var(--accent-green);">Solution:</strong> Automated warnings
+                    </div>
+                </div>
+                <div class="problem-solution">
+                    <div class="col" style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--accent-red); font-size: 1.3rem;">
+                        <strong style="color: var(--accent-red);">Problem:</strong> Unknown project tracking
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="col" style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--accent-green); font-size: 1.3rem;">
+                        <strong style="color: var(--accent-green);">Solution:</strong> Dynamic project mapping
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 20: Never Needed -->
+        <div class="slide">
+            <h2>I Didn't Need These First</h2>
+            <div style="max-width: 800px; margin: 2rem auto;">
+                <ul style="list-style: none; text-align: left;">
+                    <li class="crossed" style="margin-bottom: 0.8rem; font-size: 1.5rem;">Python fundamentals</li>
+                    <li class="crossed" style="margin-bottom: 0.8rem; font-size: 1.5rem;">JavaScript from scratch</li>
+                    <li class="crossed" style="margin-bottom: 0.8rem; font-size: 1.5rem;">CSS specificity</li>
+                    <li class="crossed" style="margin-bottom: 0.8rem; font-size: 1.5rem;">Git workflows</li>
+                    <li class="crossed" style="margin-bottom: 0.8rem; font-size: 1.5rem;">API patterns</li>
+                    <li class="crossed" style="margin-bottom: 0.8rem; font-size: 1.5rem;">Database design</li>
+                </ul>
+            </div>
+            <h3 style="margin-top: 3rem; color: var(--accent-orange); font-style: italic;">I learned by building what I needed.</h3>
+        </div>
+
+        <!-- SLIDE 21: Mindset Shift -->
+        <div class="slide">
+            <h2>The Mindset Shift</h2>
+            <div style="max-width: 900px;">
+                <div class="col" style="border-left: 4px solid var(--accent-red);">
+                    <h3 style="color: var(--accent-red);">Traditional Path</h3>
+                    <p style="font-size: 1.5rem;">Learn <span style="color: var(--text-primary);">→</span> Build <span style="color: var(--text-primary);">→</span> Deploy <span style="color: var(--text-primary);">→</span> Maintain</p>
+                    <div class="stat-value" style="font-size: 2.5rem; margin-top: 1rem; color: var(--accent-red);">6–12 months</div>
+                </div>
+                <div class="col" style="border-left: 4px solid var(--accent-green); margin-top: 2rem;">
+                    <h3 style="color: var(--accent-green);">AI-Assisted Path</h3>
+                    <p style="font-size: 1.5rem;">Build <span style="color: var(--accent-green);">+</span> Learn <span style="color: var(--text-primary);">→</span> Deploy <span style="color: var(--accent-green);">+</span> Iterate</p>
+                    <div class="stat-value" style="font-size: 2.5rem; margin-top: 1rem; color: var(--accent-green);">Days/Weeks</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 22: Still Need -->
+        <div class="slide">
+            <h2>What You Still Need</h2>
+            <div style="max-width: 900px; margin: 2rem auto;">
+                <ul style="list-style: none; text-align: left;">
+                    <li style="margin-bottom: 1.2rem; font-size: 1.5rem;"><strong style="color: var(--accent-orange);">Domain Knowledge</strong> – Understand the problem</li>
+                    <li style="margin-bottom: 1.2rem; font-size: 1.5rem;"><strong style="color: var(--accent-orange);">Critical Thinking</strong> – Evaluate solutions</li>
+                    <li style="margin-bottom: 1.2rem; font-size: 1.5rem;"><strong style="color: var(--accent-orange);">Persistence</strong> – Iterate when stuck</li>
+                    <li style="margin-bottom: 1.2rem; font-size: 1.5rem;"><strong style="color: var(--accent-orange);">Communication</strong> – Explain what you want</li>
+                    <li style="margin-bottom: 1.2rem; font-size: 1.5rem;"><strong style="color: var(--accent-orange);">User Empathy</strong> – Build for real people</li>
+                </ul>
+            </div>
+            <h3 style="margin-top: 3rem; color: var(--accent-orange); font-style: italic;">Technical skill is accessible. Your vision is essential.</h3>
+        </div>
+
+        <!-- SLIDE 23: AI Strengths -->
+        <div class="slide">
+            <h2>AI Is Great For...</h2>
+            <div class="three-col" style="grid-template-columns: 1fr auto 1fr; align-items: center;">
+                <div class="col">
+                    <h3 style="color: var(--accent-green);">AI Excels</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Syntax & structure</li>
+                        <li style="margin-bottom: 0.8rem;">Bug fixing</li>
+                        <li style="margin-bottom: 0.8rem;">Refactoring</li>
+                        <li style="margin-bottom: 0.8rem;">Best practices</li>
+                        <li style="margin-bottom: 0.8rem;">Documentation</li>
+                        <li style="margin-bottom: 0.8rem;">Rapid prototyping</li>
+                    </ul>
+                </div>
+                <div style="font-size: 4rem; color: var(--accent-orange);">+</div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">You Bring</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Architecture</li>
+                        <li style="margin-bottom: 0.8rem;">UX design</li>
+                        <li style="margin-bottom: 0.8rem;">Security review</li>
+                        <li style="margin-bottom: 0.8rem;">Innovative ideas</li>
+                        <li style="margin-bottom: 0.8rem;">Business logic</li>
+                        <li style="margin-bottom: 0.8rem;">Edge cases</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 24: Bigger Opportunity -->
+        <div class="slide">
+            <h2>The Bigger Opportunity</h2>
+            <div class="three-col">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Circular Economies</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Custom tools</li>
+                        <li style="margin-bottom: 0.8rem;">Build immediately</li>
+                        <li style="margin-bottom: 0.8rem;">Your problems</li>
+                        <li style="margin-bottom: 0.8rem;">Your pace</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Bitcoin Adoption</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Edge innovation</li>
+                        <li style="margin-bottom: 0.8rem;">Grassroots solutions</li>
+                        <li style="margin-bottom: 0.8rem;">Local solutions</li>
+                        <li style="margin-bottom: 0.8rem;">Rapid iteration</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Communities</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Real problems</li>
+                        <li style="margin-bottom: 0.8rem;">No permission</li>
+                        <li style="margin-bottom: 0.8rem;">Share learnings</li>
+                        <li style="margin-bottom: 0.8rem;">Build together</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 25: What You Could Build -->
+        <div class="slide">
+            <h2>What Could <span style="color: var(--text-primary);">YOU</span> Build?</h2>
+            <div style="max-width: 800px; margin: 2rem auto;">
+                <ul style="list-style: none; text-align: left;">
+                    <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Merchant onboarding bot</li>
+                    <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Education progress tracker</li>
+                    <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Community directory</li>
+                    <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Custom reward systems</li>
+                    <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Impact dashboard</li>
+                    <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Translation bot</li>
+                    <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Event coordination</li>
+                    <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Payment automation</li>
+                </ul>
+            </div>
+            <h3 style="margin-top: 3rem; color: var(--accent-orange); font-style: italic;">All buildable by non-programmers now.</h3>
+        </div>
+
+        <!-- SLIDE 26: Dashboard Example -->
+        <div class="slide">
+            <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%;">
+                <img src="dashboard-screenshot.png" alt="PoWBoT Dashboard" style="max-width: 95%; max-height: 85vh; width: auto; height: auto; border-radius: 8px; box-shadow: 0 4px 20px rgba(255, 120, 0, 0.3);">
+            </div>
+        </div>
+
+        <!-- SLIDE 27: Dashboard Example 2 -->
+        <div class="slide">
+            <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%;">
+                <img src="dashboard-screenshot-2.png" alt="PoWBoT Dashboard" style="max-width: 95%; max-height: 85vh; width: auto; height: auto; border-radius: 8px; box-shadow: 0 4px 20px rgba(255, 120, 0, 0.3);">
+            </div>
+        </div>
+
+        <!-- SLIDE 28: Dashboard Example 3 -->
+        <div class="slide">
+            <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%;">
+                <img src="dashboard-screenshot-3.png" alt="PoWBoT Dashboard" style="max-width: 95%; max-height: 85vh; width: auto; height: auto; border-radius: 8px; box-shadow: 0 4px 20px rgba(255, 120, 0, 0.3);">
+            </div>
+        </div>
+
+        <!-- SLIDE 29: Getting Started -->
+        <div class="slide">
+            <h2>Your Journey Starts Here</h2>
+            <div class="three-col" style="grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                <div class="code-block" style="font-size: 1.3rem; color: var(--text-primary);">
+                    <strong style="color: var(--accent-orange);">1. Identify a real problem</strong><br>
+                    What slows your project down?<br><br>
+                    <strong style="color: var(--accent-orange);">2. Describe the solution</strong><br>
+                    How should it work?<br><br>
+                    <strong style="color: var(--accent-orange);">3. Start a conversation</strong><br>
+                    "Help me build..."<br><br>
+                    <strong style="color: var(--accent-orange);">4. Iterate and learn</strong><br>
+                    Build → Test → Improve<br><br>
+                    <strong style="color: var(--accent-orange);">5. Ship it</strong><br>
+                    Real users, real feedback
+                </div>
+                <div class="code-block" style="text-align: left; font-size: 1.1rem; color: var(--text-primary); font-family: 'Courier New', Courier, monospace; font-weight: bold; display: flex; flex-direction: column; justify-content: center;">
+                    <strong style="color: var(--accent-orange);">YOU:</strong> "Track merchant onboarding progress"<br><br>
+                    <strong style="color: var(--accent-blue);">CLAUDE:</strong> [Builds signup flow tracker]<br><br>
+                    <strong style="color: var(--accent-orange);">YOU:</strong> "Send Bitcoin tips to students"<br><br>
+                    <strong style="color: var(--accent-blue);">CLAUDE:</strong> [Creates reward distribution system]<br><br>
+                    <strong style="color: var(--accent-orange);">YOU:</strong> "Calculate our runway and burn rate"<br><br>
+                    <strong style="color: var(--accent-blue);">CLAUDE:</strong> [Builds financial projections]
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 30: Our Stack -->
+        <div class="slide">
+            <h2>Our Stack (All Free/Low-Cost)</h2>
+            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 3rem; margin-top: 2rem; align-items: start;">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Development</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Claude Opus/Sonnet</li>
+                        <li style="margin-bottom: 0.8rem;">VSCode</li>
+                        <li style="margin-bottom: 0.8rem;">Python</li>
+                        <li style="margin-bottom: 0.8rem;">HTML/JavaScript</li>
+                        <li style="margin-bottom: 0.8rem;">python-telegram-bot</li>
+                    </ul>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
+                    <div style="text-align: center;">
+                        <h3 style="color: var(--text-primary);">Cost</h3>
+                        <p style="font-size: 2.5rem; color: var(--accent-orange); font-weight: 700; margin-top: 1rem;">~$20/mo</p>
+                        <p style="font-size: 1.2rem; color: var(--text-secondary); margin-top: 0.5rem;">(Just Claude)</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Services</h3>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem;">Blink API</li>
+                        <li style="margin-bottom: 0.8rem;">Google Sheets</li>
+                        <li style="margin-bottom: 0.8rem;">Nostr SDK</li>
+                        <li style="margin-bottom: 0.8rem;">GitHub Pages</li>
+                        <li style="margin-bottom: 0.8rem;">SQLite</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 31: Share -->
+        <div class="slide">
+            <h2>Why We Share Our Journey</h2>
+            <div style="max-width: 900px; margin: 2rem auto;">
+                <ul style="list-style: none; text-align: left;">
+                    <li style="margin-bottom: 1.2rem; font-size: 1.5rem;"><strong style="color: var(--accent-orange);">Share Learnings</strong> – What worked, what didn't</li>
+                    <li style="margin-bottom: 1.2rem; font-size: 1.5rem;"><strong style="color: var(--accent-orange);">Open Approach</strong> – How we think about problems</li>
+                    <li style="margin-bottom: 1.2rem; font-size: 1.5rem;"><strong style="color: var(--accent-orange);">Community Support</strong> – Help others get started</li>
+                    <li style="margin-bottom: 1.2rem; font-size: 1.5rem;"><strong style="color: var(--accent-orange);">Inspire Action</strong> – Show what's possible</li>
+                </ul>
+            </div>
+            <h3 style="margin-top: 3rem; color: var(--accent-orange); font-style: italic;">Your success helps everyone.</h3>
+        </div>
+
+        <!-- SLIDE 32: Key Message -->
+        <div class="slide">
+            <div class="slide-29-content">
+                <div class="mascot">
+                    <img src="powbot-mascot.png" alt="PoWBoT Mascot">
+                </div>
+                <div class="big-message">
+                    You Don't Need Permission.<br>
+                    You Don't Need A Developer.<br>
+                    <span class="highlight">You Just Need To Start.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 33: What's Next -->
+        <div class="slide">
+            <h2>What's Next For PoWBoT</h2>
+            <div class="three-col" style="grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 2rem;">
+                <div class="col">
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Dedicated server</li>
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Better error handling</li>
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Analytics v2</li>
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Dashboard improvements</li>
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Weekly/monthly reports</li>
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Additional platform support</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Scaling for other projects</li>
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Additional integrations</li>
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Enhanced user features</li>
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Performance optimizations</li>
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Algorithmic difficulty adjustments</li>
+                        <li style="margin-bottom: 0.8rem; font-size: 1.5rem;">Further automation</li>
+                    </ul>
+                </div>
+            </div>
+            <h3 style="margin-top: 3rem; color: var(--accent-orange); font-style: italic;">Keep building and learning with Claude, one conversation at a time.</h3>
+        </div>
+
+        <!-- SLIDE 34: Call to Action -->
+        <div class="slide slide-31">
+            <h2>Let's Build Together</h2>
+            <div class="three-col" style="margin-top: 2rem;">
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Try It</h3>
+                    <p style="font-size: 1.3rem; color: var(--text-primary);">Start building today</p>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Share It</h3>
+                    <p style="font-size: 1.3rem; color: var(--text-primary);">What can you solve?</p>
+                </div>
+                <div class="col">
+                    <h3 style="color: var(--accent-orange);">Connect</h3>
+                    <p style="font-size: 1.3rem; color: var(--text-primary);">Help others start</p>
+                </div>
+            </div>
+            <div class="contact" style="margin-top: 3rem;">
+                <p style="font-size: 1.3rem;"><strong style="color: var(--accent-orange);">GitHub:</strong> <a href="https://github.com/BitcoinUbuntu" target="_blank" style="color: var(--text-primary);">BitcoinUbuntu</a></p>
+                <p style="font-size: 1.3rem;"><strong style="color: var(--accent-orange);">X:</strong> <a href="https://x.com/BitcoinUbuntu" target="_blank" style="color: var(--text-primary);">@BitcoinUbuntu</a></p>
+                <p style="font-size: 1.3rem;"><strong style="color: var(--accent-orange);">Dashboard:</strong> <a href="https://bitcoinubuntu.github.io/powbot-stats" target="_blank" style="color: var(--text-primary);">bitcoinubuntu.github.io/powbot-stats</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-number" id="slideNumber">1</div>
+
+    <div class="navigation" style="display: none;">
+        <button class="nav-btn" id="prevBtn">←</button>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">36</span></span>
+        <button class="nav-btn" id="nextBtn">→</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('slideNumber').textContent = currentSlide + 1;
+        }
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            showSlide(currentSlide - 1);
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            showSlide(currentSlide + 1);
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                showSlide(currentSlide - 1);
+            }
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                showSlide(currentSlide + 1);
+            }
+        });
+    </script>
+</body>
+</html>

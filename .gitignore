@@ -1,0 +1,17 @@
+# Working files
+summit-slideshow-print*.html
+summit-slideshow-print-temp.html
+*-temp.html
+
+# Drafts and internal docs
+draft*/
+BRIEF.md
+CLAUDE.md
+KNOWLEDGE.md
+SLIDES-DRAFT.md
+SUMMIT-PRESENTATION-OUTLINE.md
+slide-*-*.html
+
+# OS files
+.DS_Store
+Thumbs.db
