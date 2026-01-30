@@ -4,6 +4,8 @@ Presentation slides for the Bitcoin Circular Economies Summit, January 29, 2026.
 
 ## 🎯 [**View the Slides →**](https://bitcoinubuntu.github.io/bce-summit-2026/summit-slideshow.html)
 
+📄 [**Download PDF →**](https://bitcoinubuntu.github.io/bce-summit-2026/summit-slideshow.pdf)
+
 Interactive slideshow with 35 slides. Use arrow keys (← →) or navigation buttons to move through the presentation.
 
 ---
